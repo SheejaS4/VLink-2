@@ -11,7 +11,7 @@ import Meet from './pages/Meet';
 import Settings from './pages/Settings';
 import Profile from './pages/Profile';
 import AuthCallback from './components/AuthCallback';
-
+import CustomerPortal from './pages/CustomerPortal';
 
 function App() {
   return (
@@ -29,6 +29,7 @@ function App() {
         <Route path="/meet" element={<Meet />} />
         <Route path="/settings" element={<Settings />} />
         <Route path="/profile" element={<Profile />} />
+        <Route path="/customer" element={<CustomerPortal />} />
       </Routes>
     </div>
   );

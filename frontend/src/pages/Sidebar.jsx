@@ -12,7 +12,8 @@ import {
   FaCogs,
   FaSignOutAlt,
   FaBars,
-  FaUserCircle
+  FaUserCircle,
+  FaHeadset
 } from "react-icons/fa";
 import logo from "../assets/logo-profile.png";
 
@@ -42,6 +43,26 @@ export default function Sidebar({ toggleSlideMenu, onHamburgerHover, onHamburger
       </div>
 
       <div className="flex flex-col items-center gap-4">
+        {/* Customer Portal link for customers only */}
+        {(() => {
+          let user = null;
+          try {
+            user = JSON.parse(localStorage.getItem('user'));
+          } catch (e) {}
+          if (user && user.role === 'customer') {
+            return (
+              <div className="relative group">
+                <NavLink to="/customer">
+                  <FaHeadset className="text-white text-xl hover:text-gray-300" />
+                </NavLink>
+                <span className="absolute left-10 top-1/2 -translate-y-1/2 whitespace-nowrap bg-gray-800 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                  Customer Portal
+                </span>
+              </div>
+            );
+          }
+          return null;
+        })()}
         <div className="relative group">
           <NavLink to="/profile">
             <FaUserCircle className="text-white text-xl hover:text-gray-300" />
