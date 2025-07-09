@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import {
-  FaChevronDown, FaChevronUp, FaTicketAlt, FaCheckCircle, FaExclamationCircle, FaQuestionCircle, FaEnvelope, FaPhoneAlt, FaRegCommentDots, FaClipboardList, FaInbox, FaCommentDots, FaUserCircle, FaBars, FaTimes, FaHome, FaComments, FaInfoCircle
+  FaChevronDown, FaChevronUp, FaTicketAlt, FaCheckCircle, FaExclamationCircle, FaQuestionCircle, FaEnvelope, FaPhoneAlt, FaRegCommentDots, FaClipboardList, FaInbox, FaCommentDots, FaUserCircle, FaBars, FaTimes, FaHome, FaComments, FaInfoCircle, FaClock, FaArrowRight, FaTrendingUp, FaHeadset, FaStar, FaLightbulb
 } from "react-icons/fa";
 import signupImage from "../assets/Signup.png";
 
@@ -84,25 +84,64 @@ export default function CustomerPortal() {
     if (user && user.username) userName = user.username;
   } catch {}
 
-  // Stat widgets (hardcoded for now)
+  // Get recent tickets (last 3)
+  const recentTickets = tickets.slice(-3);
+  const openTicketsCount = tickets.filter(t => t.status === 'Open').length;
+  const resolvedTicketsCount = tickets.filter(t => t.status === 'Resolved').length;
+
+  // Stat widgets (enhanced design)
   const statWidgets = [
     {
-      icon: <FaClipboardList className="text-blue-400 text-2xl" />,
-      label: "Total Tickets Raised",
+      icon: <FaClipboardList className="text-blue-400 text-3xl" />,
+      label: "Total Tickets",
       value: tickets.length,
-      bg: "bg-white/10 backdrop-blur-md border border-white/20",
+      change: "+2 this month",
+      bg: "bg-gradient-to-br from-blue-500/20 to-blue-600/10",
+      border: "border-blue-400/30",
     },
     {
-      icon: <FaCheckCircle className="text-green-400 text-2xl" />,
-      label: "Resolved Tickets",
-      value: tickets.filter(t => t.status === 'Resolved').length,
-      bg: "bg-white/10 backdrop-blur-md border border-white/20",
+      icon: <FaCheckCircle className="text-green-400 text-3xl" />,
+      label: "Resolved",
+      value: resolvedTicketsCount,
+      change: `${Math.round((resolvedTicketsCount / tickets.length) * 100) || 0}% success rate`,
+      bg: "bg-gradient-to-br from-green-500/20 to-green-600/10",
+      border: "border-green-400/30",
     },
     {
-      icon: <FaCommentDots className="text-pink-400 text-2xl" />,
-      label: "Feedbacks Submitted",
-      value: tickets.filter(t => t.type === 'Feedback').length,
-      bg: "bg-white/10 backdrop-blur-md border border-white/20",
+      icon: <FaClock className="text-yellow-400 text-3xl" />,
+      label: "Pending",
+      value: openTicketsCount,
+      change: "Avg. 2 days response",
+      bg: "bg-gradient-to-br from-yellow-500/20 to-yellow-600/10",
+      border: "border-yellow-400/30",
+    },
+  ];
+
+  // Quick action cards
+  const quickActions = [
+    {
+      icon: <FaRegCommentDots className="text-blue-400 text-2xl" />,
+      title: "Submit Feedback",
+      description: "Share your thoughts and help us improve",
+      action: () => toggleSection('feedback'),
+      bg: "bg-gradient-to-br from-blue-500/10 to-blue-600/5",
+      border: "border-blue-400/20",
+    },
+    {
+      icon: <FaExclamationCircle className="text-red-400 text-2xl" />,
+      title: "Report Issue",
+      description: "Get quick help with any problems",
+      action: () => toggleSection('issue'),
+      bg: "bg-gradient-to-br from-red-500/10 to-red-600/5",
+      border: "border-red-400/20",
+    },
+    {
+      icon: <FaQuestionCircle className="text-purple-400 text-2xl" />,
+      title: "Browse FAQ",
+      description: "Find answers to common questions",
+      action: () => toggleSection('faq'),
+      bg: "bg-gradient-to-br from-purple-500/10 to-purple-600/5",
+      border: "border-purple-400/20",
     },
   ];
 
@@ -169,166 +208,182 @@ export default function CustomerPortal() {
   // Side panel links
   const navLinks = [
     { label: "Dashboard", icon: <FaHome />, href: "#dashboard" },
-    { label: "My Tickets", icon: <FaTicketAlt />, href: "#tickets" },
-    { label: "Submit Feedback", icon: <FaRegCommentDots />, href: "#feedback" },
-    { label: "Raise Issue", icon: <FaExclamationCircle />, href: "#issue" },
+    { label: "Quick Actions", icon: <FaTrendingUp />, href: "#actions" },
+    { label: "Recent Activity", icon: <FaClock />, href: "#recent" },
+    { label: "Support", icon: <FaHeadset />, href: "#support" },
     { label: "FAQ", icon: <FaQuestionCircle />, href: "#faq" },
     { label: "Contact", icon: <FaEnvelope />, href: "#contact" },
   ];
 
   return (
-    <div className="min-h-screen bg-[#0f172a] flex">
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 flex">
       {/* Side Panel */}
-      <aside className="fixed left-0 top-0 bottom-0 h-screen w-64 bg-[#1e293b] shadow-2xl border-r border-gray-700 z-30"> 
+      <aside className="fixed left-0 top-0 bottom-0 h-screen w-64 bg-slate-800/95 backdrop-blur-sm shadow-2xl border-r border-slate-700/50 z-30"> 
         <div className="flex flex-col items-center py-8 px-4">
-          <FaUserCircle className="text-5xl text-blue-400 mb-2 drop-shadow" />
-          <div className="text-lg font-bold text-white mb-1">{userName}</div>
-          <div className="text-xs text-gray-400 mb-4">Customer Portal</div>
+          <div className="relative">
+            <FaUserCircle className="text-6xl text-blue-400 mb-3 drop-shadow-lg" />
+            <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-green-400 rounded-full border-2 border-slate-800"></div>
+          </div>
+          <div className="text-xl font-bold text-white mb-1">{userName}</div>
+          <div className="text-sm text-slate-400 mb-4 font-medium">Customer Portal</div>
+          <div className="w-full h-px bg-gradient-to-r from-transparent via-slate-600 to-transparent mb-4"></div>
         </div>
-        <nav className="flex-1 flex flex-col gap-2 px-4">
+        <nav className="flex-1 flex flex-col gap-1 px-4">
           {navLinks.map((link, idx) => (
-            <a key={idx} href={link.href} className="flex items-center gap-3 px-4 py-3 rounded-lg font-semibold text-gray-200 hover:bg-[#334155] hover:text-white transition-all">
-              <span className="text-xl">{link.icon}</span>
+            <a key={idx} href={link.href} className="flex items-center gap-3 px-4 py-3 rounded-xl font-medium text-slate-300 hover:bg-slate-700/50 hover:text-white transition-all group">
+              <span className="text-lg group-hover:scale-110 transition-transform">{link.icon}</span>
               <span>{link.label}</span>
             </a>
           ))}
         </nav>
         <div className="mt-auto flex justify-center pb-6 md:hidden">
-          <button onClick={() => setSideOpen(false)} className="p-2 rounded-full bg-[#334155] hover:bg-[#475569] text-white"><FaTimes /></button>
+          <button onClick={() => setSideOpen(false)} className="p-3 rounded-full bg-slate-700 hover:bg-slate-600 text-white transition-colors"><FaTimes /></button>
         </div>
       </aside>
       {/* Hamburger for mobile */}
-      <button className="fixed top-4 left-4 z-40 md:hidden p-2 rounded-full bg-[#1e293b] shadow-lg hover:bg-[#334155] text-white" onClick={() => setSideOpen(true)}><FaBars /></button>
+      <button className="fixed top-4 left-4 z-40 md:hidden p-3 rounded-xl bg-slate-800/90 backdrop-blur-sm shadow-lg hover:bg-slate-700 text-white transition-all" onClick={() => setSideOpen(true)}><FaBars /></button>
 
       {/* Main Content */}
-      <main className="flex-1 px-4 py-8 md:py-12 transition-all duration-300 w-full ml-64">
-        <div className="w-full flex flex-col gap-8">
-          {/* Stat Widgets */}
-          <div className="w-full grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-8 items-start">
-            {statWidgets.map((w, i) => (
-              <div key={i} className="flex items-center gap-4 p-6 rounded-lg shadow-lg border-2 border-dashed border-gray-500 bg-[#1e293b] hover:scale-[1.04] hover:shadow-2xl transition-all duration-200">
-                <div>{w.icon}</div>
-                <div>
-                  <div className="text-3xl font-extrabold text-white drop-shadow">{w.value}</div>
-                  <div className="text-gray-400 text-base font-semibold mt-1">{w.label}</div>
+      <main className="flex-1 px-6 py-8 transition-all duration-300 w-full ml-64">
+        <div className="max-w-7xl mx-auto">
+          {/* Header Section */}
+          <div className="mb-8">
+            <div className="flex items-center justify-between mb-6">
+              <div>
+                <h1 className="text-4xl font-bold text-white mb-2 bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
+                  Welcome back, {userName}!
+                </h1>
+                <p className="text-slate-400 text-lg">Here's your support dashboard overview</p>
+              </div>
+              <div className="hidden lg:flex items-center gap-4">
+                <div className="flex items-center gap-2 px-4 py-2 bg-green-500/10 border border-green-500/20 rounded-xl">
+                  <div className="w-3 h-3 bg-green-400 rounded-full animate-pulse"></div>
+                  <span className="text-green-400 font-medium">Support Online</span>
                 </div>
               </div>
-            ))}
-          </div>
-
-          {/* Welcome Banner */}
-          <div className="w-full mb-8">
-            <div className="bg-[#1e293b] border-2 border-dashed border-gray-500 rounded-lg shadow-lg p-8 flex flex-row items-start w-full">
-              <div className="text-left flex-1">
-                <h1 className="text-4xl font-extrabold text-white mb-2 drop-shadow">Welcome, {userName}!</h1>
-                <p className="text-gray-400 text-lg font-medium mb-2">How can we help you today? Access support, raise issues, and view your tickets below.</p>
-              </div>
-              <div className="flex-shrink-0">
-                <img
-                  src={signupImage}
-                  alt="Dashboard illustration"
-                  className="max-w-xs w-full h-auto rounded-lg shadow-lg object-contain border-2 border-dashed border-gray-500"
-                />
-              </div>
+            </div>
+            
+            {/* Stats Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {statWidgets.map((stat, idx) => (
+                <div key={idx} className={`p-6 rounded-2xl border backdrop-blur-sm hover:scale-105 transition-all duration-300 ${stat.bg} ${stat.border}`}>
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="p-3 rounded-xl bg-white/5">{stat.icon}</div>
+                    <div className="text-right">
+                      <div className="text-3xl font-bold text-white">{stat.value}</div>
+                      <div className="text-sm text-slate-400 font-medium">{stat.label}</div>
+                    </div>
+                  </div>
+                  <div className="text-xs text-slate-400 flex items-center gap-1">
+                    <FaTrendingUp className="text-green-400" />
+                    {stat.change}
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
 
-          {/* Dashboard Grid */}
-          <div className="w-full grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
-            {/* Feedback Card */}
-            <div className="col-span-1">
-              <div className="bg-[#1e293b] border-2 border-dashed border-gray-500 rounded-lg shadow-lg hover:shadow-2xl transition-all duration-200">
+          {/* Quick Actions Section */}
+          <div className="mb-8">
+            <div className="flex items-center gap-3 mb-6">
+              <FaLightbulb className="text-yellow-400 text-xl" />
+              <h2 className="text-2xl font-bold text-white">Quick Actions</h2>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {quickActions.map((action, idx) => (
                 <button
-                  id="feedback"
-                  className="w-full flex items-center justify-between px-6 py-4 focus:outline-none hover:bg-[#334155] transition-all duration-200 rounded-t-lg"
-                  onClick={() => toggleSection('feedback')}
-                  aria-expanded={openSection === 'feedback'}
+                  key={idx}
+                  onClick={action.action}
+                  className={`p-6 rounded-2xl border backdrop-blur-sm hover:scale-105 transition-all duration-300 text-left group ${action.bg} ${action.border}`}
                 >
-                  <span className="flex items-center gap-2 text-lg font-bold text-white">
-                    <FaRegCommentDots className="text-blue-400" /> Submit Feedback
-                  </span>
-                  {openSection === 'feedback' ? (
-                    <FaChevronUp className="text-blue-400" />
-                  ) : (
-                    <FaChevronDown className="text-blue-400" />
-                  )}
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="p-3 rounded-xl bg-white/5 group-hover:bg-white/10 transition-colors">{action.icon}</div>
+                    <FaArrowRight className="text-slate-400 group-hover:text-white group-hover:translate-x-1 transition-all" />
+                  </div>
+                  <h3 className="text-lg font-bold text-white mb-2">{action.title}</h3>
+                  <p className="text-slate-400 text-sm">{action.description}</p>
                 </button>
-                <div
-                  className={`overflow-hidden transition-all duration-300 ${openSection === 'feedback' ? 'max-h-[400px] p-6' : 'max-h-0 p-0'}`}
-                >
-                  {openSection === 'feedback' && (
-                    <form onSubmit={handleFeedbackSubmit} className="flex flex-col gap-3 animate-fade-in">
+              ))}
+            </div>
+          </div>
+
+          {/* Expandable Sections */}
+          {openSection && (
+            <div className="mb-8">
+              <div className="bg-slate-800/50 backdrop-blur-sm border border-slate-700/50 rounded-2xl p-6">
+                {openSection === 'feedback' && (
+                  <div>
+                    <div className="flex items-center gap-3 mb-6">
+                      <FaRegCommentDots className="text-blue-400 text-xl" />
+                      <h3 className="text-xl font-bold text-white">Submit Feedback</h3>
+                    </div>
+                    <form onSubmit={handleFeedbackSubmit} className="space-y-4">
                       <textarea
-                        className="bg-[#0f172a] border border-gray-700 rounded-lg text-white px-4 py-2 min-h-[80px] focus:border-blue-400 focus:ring-2 focus:ring-blue-200 transition-all"
-                        placeholder="Share your thoughts or suggestions..."
+                        className="w-full bg-slate-900/50 border border-slate-700 rounded-xl text-white px-4 py-3 min-h-[120px] focus:border-blue-400 focus:ring-2 focus:ring-blue-400/20 transition-all resize-none"
+                        placeholder="Share your thoughts, suggestions, or experiences with us..."
                         value={feedback}
                         onChange={(e) => {
                           setFeedback(e.target.value);
                           setFeedbackMsg("");
                         }}
                       />
-                      <button
-                        type="submit"
-                        className="self-end bg-blue-600 text-white font-bold rounded-lg px-6 py-2 mt-2 hover:bg-blue-700 transition-all shadow"
-                      >
-                        Submit Feedback
-                      </button>
+                      <div className="flex items-center justify-between">
+                        <button
+                          type="button"
+                          onClick={() => setOpenSection(null)}
+                          className="px-6 py-2 text-slate-400 hover:text-white transition-colors"
+                        >
+                          Cancel
+                        </button>
+                        <button
+                          type="submit"
+                          className="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-xl transition-colors"
+                        >
+                          Submit Feedback
+                        </button>
+                      </div>
                       {feedbackMsg && (
-                        <span className="text-sm text-green-400 font-semibold">{feedbackMsg}</span>
+                        <div className="p-3 bg-green-500/10 border border-green-500/20 rounded-xl text-green-400 text-sm">
+                          {feedbackMsg}
+                        </div>
                       )}
                     </form>
-                  )}
-                </div>
-              </div>
-            </div>
+                  </div>
+                )}
 
-            {/* Raise Issue Card */}
-            <div className="col-span-1">
-              <div className="bg-[#1e293b] border-2 border-dashed border-gray-500 rounded-lg shadow-lg hover:shadow-2xl transition-all duration-200">
-                <button
-                  id="issue"
-                  className="w-full flex items-center justify-between px-6 py-4 focus:outline-none hover:bg-[#334155] transition-all duration-200 rounded-t-lg"
-                  onClick={() => toggleSection('issue')}
-                  aria-expanded={openSection === 'issue'}
-                >
-                  <span className="flex items-center gap-2 text-lg font-bold text-white">
-                    <FaExclamationCircle className="text-yellow-400" /> Raise an Issue
-                  </span>
-                  {openSection === 'issue' ? (
-                    <FaChevronUp className="text-yellow-400" />
-                  ) : (
-                    <FaChevronDown className="text-yellow-400" />
-                  )}
-                </button>
-                <div
-                  className={`overflow-hidden transition-all duration-300 ${openSection === 'issue' ? 'max-h-[600px] p-6' : 'max-h-0 p-0'}`}
-                >
-                  {openSection === 'issue' && (
-                    <form onSubmit={handleIssueSubmit} className="flex flex-col gap-4 animate-fade-in">
-                      <div>
-                        <label className="block text-sm font-bold text-white mb-1">Name</label>
-                        <input
-                          type="text"
-                          className={`bg-[#0f172a] border border-gray-700 rounded-lg text-white px-4 py-2 w-full focus:border-blue-400 focus:ring-2 focus:ring-blue-200 transition-all ${issueErrors.name ? "border-red-400 focus:ring-red-200" : ""}`}
-                          value={issue.name}
-                          onChange={(e) => setIssue({ ...issue, name: e.target.value })}
-                        />
-                        {issueErrors.name && <span className="text-xs text-red-400 font-semibold">{issueErrors.name}</span>}
+                {openSection === 'issue' && (
+                  <div>
+                    <div className="flex items-center gap-3 mb-6">
+                      <FaExclamationCircle className="text-red-400 text-xl" />
+                      <h3 className="text-xl font-bold text-white">Report an Issue</h3>
+                    </div>
+                    <form onSubmit={handleIssueSubmit} className="space-y-4">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                          <label className="block text-sm font-medium text-white mb-2">Name</label>
+                          <input
+                            type="text"
+                            className={`w-full bg-slate-900/50 border rounded-xl text-white px-4 py-3 focus:ring-2 transition-all ${issueErrors.name ? "border-red-400 focus:ring-red-400/20" : "border-slate-700 focus:border-blue-400 focus:ring-blue-400/20"}`}
+                            value={issue.name}
+                            onChange={(e) => setIssue({ ...issue, name: e.target.value })}
+                          />
+                          {issueErrors.name && <span className="text-xs text-red-400 mt-1 block">{issueErrors.name}</span>}
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium text-white mb-2">Email</label>
+                          <input
+                            type="email"
+                            className={`w-full bg-slate-900/50 border rounded-xl text-white px-4 py-3 focus:ring-2 transition-all ${issueErrors.email ? "border-red-400 focus:ring-red-400/20" : "border-slate-700 focus:border-blue-400 focus:ring-blue-400/20"}`}
+                            value={issue.email}
+                            onChange={(e) => setIssue({ ...issue, email: e.target.value })}
+                          />
+                          {issueErrors.email && <span className="text-xs text-red-400 mt-1 block">{issueErrors.email}</span>}
+                        </div>
                       </div>
                       <div>
-                        <label className="block text-sm font-bold text-white mb-1">Email</label>
-                        <input
-                          type="email"
-                          className={`bg-[#0f172a] border border-gray-700 rounded-lg text-white px-4 py-2 w-full focus:border-blue-400 focus:ring-2 focus:ring-blue-200 transition-all ${issueErrors.email ? "border-red-400 focus:ring-red-200" : ""}`}
-                          value={issue.email}
-                          onChange={(e) => setIssue({ ...issue, email: e.target.value })}
-                        />
-                        {issueErrors.email && <span className="text-xs text-red-400 font-semibold">{issueErrors.email}</span>}
-                      </div>
-                      <div>
-                        <label className="block text-sm font-bold text-white mb-1">Issue Type</label>
+                        <label className="block text-sm font-medium text-white mb-2">Issue Type</label>
                         <select
-                          className="bg-[#0f172a] border border-gray-700 rounded-lg text-white px-4 py-2 w-full focus:border-blue-400 focus:ring-2 focus:ring-blue-200 transition-all"
+                          className="w-full bg-slate-900/50 border border-slate-700 rounded-xl text-white px-4 py-3 focus:border-blue-400 focus:ring-2 focus:ring-blue-400/20 transition-all"
                           value={issue.type}
                           onChange={(e) => setIssue({ ...issue, type: e.target.value })}
                         >
@@ -338,144 +393,154 @@ export default function CustomerPortal() {
                         </select>
                       </div>
                       <div>
-                        <label className="block text-sm font-bold text-white mb-1">Description</label>
+                        <label className="block text-sm font-medium text-white mb-2">Description</label>
                         <textarea
-                          className={`bg-[#0f172a] border border-gray-700 rounded-lg text-white px-4 py-2 w-full min-h-[60px] focus:border-blue-400 focus:ring-2 focus:ring-blue-200 transition-all ${issueErrors.description ? "border-red-400 focus:ring-red-200" : ""}`}
+                          className={`w-full bg-slate-900/50 border rounded-xl text-white px-4 py-3 min-h-[100px] focus:ring-2 transition-all resize-none ${issueErrors.description ? "border-red-400 focus:ring-red-400/20" : "border-slate-700 focus:border-blue-400 focus:ring-blue-400/20"}`}
                           value={issue.description}
                           onChange={(e) => setIssue({ ...issue, description: e.target.value })}
+                          placeholder="Please describe your issue in detail..."
                         />
-                        {issueErrors.description && <span className="text-xs text-red-400 font-semibold">{issueErrors.description}</span>}
+                        {issueErrors.description && <span className="text-xs text-red-400 mt-1 block">{issueErrors.description}</span>}
                       </div>
-                      <button
-                        type="submit"
-                        className="self-end bg-blue-600 text-white font-bold rounded-lg px-6 py-2 mt-2 hover:bg-blue-700 transition-all shadow"
-                      >
-                        Submit Issue
-                      </button>
+                      <div className="flex items-center justify-between">
+                        <button
+                          type="button"
+                          onClick={() => setOpenSection(null)}
+                          className="px-6 py-2 text-slate-400 hover:text-white transition-colors"
+                        >
+                          Cancel
+                        </button>
+                        <button
+                          type="submit"
+                          className="px-6 py-2 bg-red-600 hover:bg-red-700 text-white font-medium rounded-xl transition-colors"
+                        >
+                          Submit Issue
+                        </button>
+                      </div>
                       {issueMsg && (
-                        <span className="text-sm text-green-400 font-semibold">{issueMsg}</span>
+                        <div className="p-3 bg-green-500/10 border border-green-500/20 rounded-xl text-green-400 text-sm">
+                          {issueMsg}
+                        </div>
                       )}
                     </form>
-                  )}
-                </div>
-              </div>
-            </div>
+                  </div>
+                )}
 
-            {/* FAQ Card */}
-            <div className="col-span-1">
-              <div className="bg-[#1e293b] border-2 border-dashed border-gray-500 rounded-lg shadow-lg hover:shadow-2xl transition-all duration-200">
-                <button
-                  id="faq"
-                  className="w-full flex items-center justify-between px-6 py-4 focus:outline-none hover:bg-[#334155] transition-all duration-200 rounded-t-lg"
-                  onClick={() => toggleSection('faq')}
-                  aria-expanded={openSection === 'faq'}
-                >
-                  <span className="flex items-center gap-2 text-lg font-bold text-white">
-                    <FaQuestionCircle className="text-green-400" /> FAQ
-                  </span>
-                  {openSection === 'faq' ? (
-                    <FaChevronUp className="text-green-400" />
-                  ) : (
-                    <FaChevronDown className="text-green-400" />
-                  )}
-                </button>
-                <div
-                  className={`overflow-hidden transition-all duration-300 ${openSection === 'faq' ? 'max-h-[600px] p-6' : 'max-h-0 p-0'}`}
-                >
-                  {openSection === 'faq' && (
-                    <div className="divide-y divide-gray-700 animate-fade-in">
+                {openSection === 'faq' && (
+                  <div>
+                    <div className="flex items-center gap-3 mb-6">
+                      <FaQuestionCircle className="text-purple-400 text-xl" />
+                      <h3 className="text-xl font-bold text-white">Frequently Asked Questions</h3>
+                    </div>
+                    <div className="space-y-3">
                       {faqs.map((faq, idx) => (
-                        <div key={idx} className="py-3">
+                        <div key={idx} className="border border-slate-700/50 rounded-xl overflow-hidden">
                           <button
-                            className="w-full text-left flex justify-between items-center focus:outline-none hover:text-blue-400 transition-colors"
+                            className="w-full text-left px-4 py-4 hover:bg-slate-700/30 transition-colors flex justify-between items-center"
                             onClick={() => setOpenFaq(openFaq === idx ? null : idx)}
-                            aria-expanded={openFaq === idx}
                           >
-                            <span className="font-semibold text-white">{faq.question}</span>
-                            <span className="ml-2 text-blue-400">{openFaq === idx ? <FaChevronUp /> : <FaChevronDown />}</span>
+                            <span className="font-medium text-white">{faq.question}</span>
+                            <span className="text-purple-400">{openFaq === idx ? <FaChevronUp /> : <FaChevronDown />}</span>
                           </button>
                           {openFaq === idx && (
-                            <div className="mt-2 text-gray-400 text-sm animate-fade-in">{faq.answer}</div>
+                            <div className="px-4 pb-4 text-slate-400 text-sm leading-relaxed border-t border-slate-700/50">
+                              <div className="pt-3">{faq.answer}</div>
+                            </div>
                           )}
                         </div>
                       ))}
                     </div>
-                  )}
-                </div>
+                  </div>
+                )}
               </div>
             </div>
-          </div>
+          )}
 
-          {/* Tickets and Contact Row */}
-          <div className="w-full grid grid-cols-1 lg:grid-cols-3 gap-8 mb-12">
-            {/* My Tickets Card */}
-            <div className="col-span-2">
-              <div className="bg-[#1e293b] border-2 border-dashed border-gray-500 rounded-lg shadow-lg p-8 hover:shadow-2xl transition-all duration-200 flex flex-col items-center justify-center min-h-[320px]">
-                <div className="flex items-center gap-2 mb-4">
-                  <FaTicketAlt className="text-pink-400 text-xl" />
-                  <h2 className="text-xl font-bold text-white">My Tickets & Previous Feedback</h2>
+          {/* Recent Activity & Support */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            {/* Recent Activity Summary */}
+            <div className="lg:col-span-2">
+              <div className="bg-slate-800/50 backdrop-blur-sm border border-slate-700/50 rounded-2xl p-6">
+                <div className="flex items-center justify-between mb-6">
+                  <div className="flex items-center gap-3">
+                    <FaClock className="text-blue-400 text-xl" />
+                    <h3 className="text-xl font-bold text-white">Recent Activity</h3>
+                  </div>
+                  {tickets.length > 3 && (
+                    <button className="text-blue-400 hover:text-blue-300 text-sm font-medium flex items-center gap-1">
+                      View All <FaArrowRight className="text-xs" />
+                    </button>
+                  )}
                 </div>
-                {tickets.length === 0 ? (
-                  <div className="flex flex-col items-center justify-center w-full h-full py-8">
-                    <p className="text-lg text-gray-400 font-semibold mb-2">You haven’t submitted any feedback or raised any issues yet.</p>
-                    <img
-                      src={signupImage}
-                      alt="No tickets yet"
-                      className="max-w-sm w-full h-auto mb-4 rounded-lg shadow-md object-contain mx-auto border-2 border-dashed border-gray-500"
-                    />
-                    <p className="text-blue-400 mb-2 text-center">Start by submitting feedback or raising your first issue using the cards above.</p>
+                
+                {recentTickets.length === 0 ? (
+                  <div className="text-center py-8">
+                    <FaClipboardList className="text-slate-600 text-4xl mx-auto mb-4" />
+                    <p className="text-slate-400 font-medium">No recent activity</p>
+                    <p className="text-slate-500 text-sm">Your tickets and feedback will appear here</p>
                   </div>
                 ) : (
-                  <div className="overflow-x-auto w-full">
-                    <table className="min-w-full text-left text-sm">
-                      <thead>
-                        <tr className="text-gray-400 border-b border-gray-700">
-                          <th className="py-2 pr-4 font-bold">ID</th>
-                          <th className="py-2 pr-4 font-bold">Type</th>
-                          <th className="py-2 pr-4 font-bold">Subject</th>
-                          <th className="py-2 pr-4 font-bold">Status</th>
-                          <th className="py-2 pr-4 font-bold">Date</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {tickets.map((t) => (
-                          <tr key={t.id} className="border-b border-gray-700 hover:bg-[#22304a] transition-colors">
-                            <td className="py-2 pr-4 text-white font-mono">{t.id}</td>
-                            <td className="py-2 pr-4">
-                              <span className={`px-2 py-1 rounded text-xs font-bold ${t.type === 'Issue' ? 'bg-yellow-900 text-yellow-300' : 'bg-blue-900 text-blue-300'}`}>{t.type}</span>
-                            </td>
-                            <td className="py-2 pr-4 text-white">{t.subject}</td>
-                            <td className="py-2 pr-4">
-                              {t.status === 'Resolved' && <span className="flex items-center gap-1 text-green-400"><FaCheckCircle /> Resolved</span>}
-                              {t.status === 'Open' && <span className="flex items-center gap-1 text-red-400"><FaExclamationCircle /> Open</span>}
-                              {t.status === 'In Progress' && <span className="flex items-center gap-1 text-yellow-300"><FaQuestionCircle /> In Progress</span>}
-                            </td>
-                            <td className="py-2 pr-4 text-gray-400">{t.date}</td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
+                  <div className="space-y-3">
+                    {recentTickets.reverse().map((ticket) => (
+                      <div key={ticket.id} className="flex items-center gap-4 p-4 bg-slate-900/30 rounded-xl border border-slate-700/30 hover:border-slate-600/50 transition-colors">
+                        <div className={`p-2 rounded-lg ${ticket.type === 'Issue' ? 'bg-red-500/10 text-red-400' : 'bg-blue-500/10 text-blue-400'}`}>
+                          {ticket.type === 'Issue' ? <FaExclamationCircle /> : <FaRegCommentDots />}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-white font-medium truncate">{ticket.subject}</p>
+                          <div className="flex items-center gap-3 mt-1">
+                            <span className="text-xs text-slate-400">{ticket.id}</span>
+                            <span className="text-xs text-slate-500">•</span>
+                            <span className="text-xs text-slate-400">{ticket.date}</span>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          {ticket.status === 'Resolved' && <span className="flex items-center gap-1 text-green-400 text-sm"><FaCheckCircle className="text-xs" /> Resolved</span>}
+                          {ticket.status === 'Open' && <span className="flex items-center gap-1 text-red-400 text-sm"><FaExclamationCircle className="text-xs" /> Open</span>}
+                          {ticket.status === 'In Progress' && <span className="flex items-center gap-1 text-yellow-400 text-sm"><FaClock className="text-xs" /> In Progress</span>}
+                        </div>
+                      </div>
+                    ))}
                   </div>
                 )}
               </div>
             </div>
 
-            {/* Help & Contact Card */}
-            <div className="col-span-1">
-              <div className="bg-[#1e293b] border-2 border-dashed border-gray-500 rounded-lg shadow-lg p-8 flex flex-col gap-2 hover:shadow-2xl transition-all duration-200">
-                <div className="flex items-center gap-2 mb-2">
-                  <FaEnvelope className="text-blue-400 text-xl" />
-                  <span className="text-white font-bold">Email:</span>
-                  <span className="text-gray-400">support@company.com</span>
+            {/* Support Contact */}
+            <div className="lg:col-span-1">
+              <div className="bg-slate-800/50 backdrop-blur-sm border border-slate-700/50 rounded-2xl p-6">
+                <div className="flex items-center gap-3 mb-6">
+                  <FaHeadset className="text-green-400 text-xl" />
+                  <h3 className="text-xl font-bold text-white">Need Help?</h3>
                 </div>
-                <div className="flex items-center gap-2 mb-2">
-                  <FaPhoneAlt className="text-green-400 text-xl" />
-                  <span className="text-white font-bold">Phone:</span>
-                  <span className="text-gray-400">+1 (800) 123-4567</span>
+                <div className="space-y-4">
+                  <div className="p-4 bg-slate-900/30 rounded-xl border border-slate-700/30">
+                    <div className="flex items-center gap-3 mb-2">
+                      <FaEnvelope className="text-blue-400" />
+                      <span className="text-white font-medium">Email Support</span>
+                    </div>
+                    <p className="text-slate-400 text-sm">support@company.com</p>
+                  </div>
+                  <div className="p-4 bg-slate-900/30 rounded-xl border border-slate-700/30">
+                    <div className="flex items-center gap-3 mb-2">
+                      <FaPhoneAlt className="text-green-400" />
+                      <span className="text-white font-medium">Phone Support</span>
+                    </div>
+                    <p className="text-slate-400 text-sm">+1 (800) 123-4567</p>
+                  </div>
+                  <div className="p-4 bg-slate-900/30 rounded-xl border border-slate-700/30">
+                    <div className="flex items-center gap-3 mb-2">
+                      <FaClock className="text-yellow-400" />
+                      <span className="text-white font-medium">Support Hours</span>
+                    </div>
+                    <p className="text-slate-400 text-sm">Mon–Fri, 9am–6pm EST</p>
+                  </div>
                 </div>
-                <div className="flex items-center gap-2">
-                  <span className="text-white font-bold">Support Hours:</span>
-                  <span className="text-gray-400">Mon–Fri, 9am–6pm</span>
+                <div className="mt-6 text-center">
+                  <div className="flex items-center justify-center gap-2 text-sm text-slate-400">
+                    <FaStar className="text-yellow-400" />
+                    <span>4.9/5 satisfaction rating</span>
+                  </div>
                 </div>
               </div>
             </div>
