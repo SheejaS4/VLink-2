@@ -360,10 +360,12 @@ export default function CustomerPortal() {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 flex">
+    <div className="h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 flex overflow-hidden">
       {/* Side Panel */}
-      <aside className="fixed left-0 top-0 bottom-0 h-screen w-64 bg-slate-800/95 backdrop-blur-sm shadow-2xl border-r border-slate-700/50 z-30"> 
-        <div className="flex flex-col items-center py-8 px-4">
+      <aside className={`fixed left-0 top-0 bottom-0 h-full w-64 bg-slate-800/95 backdrop-blur-sm shadow-2xl border-r border-slate-700/50 z-30 flex flex-col transition-transform duration-300 md:translate-x-0 ${
+        sideOpen ? 'translate-x-0' : '-translate-x-full'
+      }`}> 
+        <div className="flex flex-col items-center py-8 px-4 flex-shrink-0">
           <div className="relative">
             <FaUserCircle className="text-6xl text-blue-400 mb-3 drop-shadow-lg" />
             <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-green-400 rounded-full border-2 border-slate-800"></div>
@@ -372,7 +374,7 @@ export default function CustomerPortal() {
           <div className="text-sm text-slate-400 mb-4 font-medium">Customer Portal</div>
           <div className="w-full h-px bg-gradient-to-r from-transparent via-slate-600 to-transparent mb-4"></div>
         </div>
-        <nav className="flex-1 flex flex-col gap-1 px-4">
+        <nav className="flex-1 flex flex-col gap-1 px-4 overflow-y-auto">
           {navLinks.map((link, idx) => (
             <button 
               key={idx} 
@@ -381,7 +383,7 @@ export default function CustomerPortal() {
                 setSelectedOrder(null);
                 setOpenSection(null);
               }}
-              className={`flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-all group text-left w-full ${
+              className={`flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-all group text-left w-full flex-shrink-0 ${
                 activeSection === link.section 
                   ? 'bg-blue-600/20 text-blue-400 border border-blue-500/30' 
                   : 'text-slate-300 hover:bg-slate-700/50 hover:text-white'
@@ -392,16 +394,28 @@ export default function CustomerPortal() {
             </button>
           ))}
         </nav>
-        <div className="mt-auto flex justify-center pb-6 md:hidden">
+        <div className="flex-shrink-0 flex justify-center pb-6 md:hidden">
           <button onClick={() => setSideOpen(false)} className="p-3 rounded-full bg-slate-700 hover:bg-slate-600 text-white transition-colors"><FaTimes /></button>
         </div>
       </aside>
+      
+      {/* Mobile Sidebar Overlay */}
+      {sideOpen && (
+        <div 
+          className="fixed inset-0 bg-black/70 backdrop-blur-sm z-20 md:hidden"
+          onClick={() => setSideOpen(false)}
+        />
+      )}
+      
       {/* Hamburger for mobile */}
       <button className="fixed top-4 left-4 z-40 md:hidden p-3 rounded-xl bg-slate-800/90 backdrop-blur-sm shadow-lg hover:bg-slate-700 text-white transition-all" onClick={() => setSideOpen(true)}><FaBars /></button>
 
-      {/* Main Content */}
-      <main className="flex-1 px-6 py-8 transition-all duration-300 w-full ml-64">
-        <div className="max-w-7xl mx-auto">
+      {/* Main Content Container */}
+      <div className="flex-1 md:ml-64 flex flex-col h-full">
+        {/* Main Content - Scrollable Area */}
+        <main className="flex-1 overflow-y-auto">
+          <div className="px-6 py-8">
+            <div className="max-w-7xl mx-auto">
           {/* Dashboard Section */}
           {activeSection === 'dashboard' && (
             <>
@@ -1208,8 +1222,10 @@ export default function CustomerPortal() {
               </div>
             </div>
           )}
-        </div>
-      </main>
+            </div>
+          </div>
+        </main>
+      </div>
     </div>
   );
 } 
