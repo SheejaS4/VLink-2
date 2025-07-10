@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import Sidebar from "./Sidebar";
 import SlideMenu from "./SlideMenu";
 import {
@@ -33,7 +34,8 @@ import {
   FaChartLine,
   FaUsers,
   FaCreditCard,
-  FaCalendarAlt
+  FaCalendarAlt,
+  FaSpinner
 } from "react-icons/fa";
 
 // Preview Modal Component
@@ -383,12 +385,14 @@ function CustomizeModal({ isOpen, onClose, onSave, section, formData, setFormDat
 }
 
 export default function ClientWorkspaceConfig() {
+  const navigate = useNavigate();
   const [isMenuOpen, setMenuOpen] = useState(false);
   const [isPermanent, setPermanent] = useState(false);
   const [isHoveringMenu, setIsHoveringMenu] = useState(false);
   const [companyType, setCompanyType] = useState("service"); // service or product
   const [showPreview, setShowPreview] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
 
   // Branding state
   const [branding, setBranding] = useState({
@@ -620,23 +624,87 @@ export default function ClientWorkspaceConfig() {
     closeCustomizeModal();
   };
 
-  const saveConfiguration = () => {
-    const config = {
-      companyType,
-      branding,
-      dashboardSections,
-      formFields,
-      faqs,
-      timestamp: new Date().toISOString()
-    };
+  const saveConfiguration = async () => {
+    if (isSaving) return; // Prevent double saves
     
-    // Save to localStorage (in a real app, this would be sent to backend)
-    localStorage.setItem('clientWorkspaceConfig', JSON.stringify(config));
+    setIsSaving(true);
     
-    console.log("Saving configuration:", config);
-    alert(`Configuration ${isEditing ? 'updated' : 'saved'} successfully!`);
-    setShowPreview(false);
-    setIsEditing(true); // Set to editing mode after first save
+    try {
+      const config = {
+        id: Date.now(), // Add unique ID
+        companyType,
+        branding,
+        dashboardSections,
+        formFields,
+        faqs,
+        timestamp: new Date().toISOString(),
+        name: `${companyType.charAt(0).toUpperCase() + companyType.slice(1)} Configuration`
+      };
+      
+      // Simulate async operation
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      // Save to localStorage (in a real app, this would be sent to backend)
+      localStorage.setItem('clientWorkspaceConfig', JSON.stringify(config));
+      
+      // Also save to a list of all configurations for future use
+      const existingConfigs = JSON.parse(localStorage.getItem('allClientConfigs') || '[]');
+      const updatedConfigs = isEditing 
+        ? existingConfigs.map(c => c.id === config.id ? config : c)
+        : [...existingConfigs, config];
+      localStorage.setItem('allClientConfigs', JSON.stringify(updatedConfigs));
+      
+      console.log("Configuration saved successfully:", config);
+      
+      // Show success message with better UX
+      const message = isEditing ? 'Configuration updated successfully!' : 'Configuration saved successfully!';
+      
+      // Create a temporary success notification
+      const notification = document.createElement('div');
+      notification.className = 'fixed top-4 right-4 bg-green-600 text-white px-6 py-3 rounded-lg shadow-lg z-50 flex items-center gap-2';
+      notification.innerHTML = `
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+        </svg>
+        ${message}
+      `;
+      document.body.appendChild(notification);
+      
+      // Remove notification after 3 seconds
+      setTimeout(() => {
+        if (notification.parentNode) {
+          notification.parentNode.removeChild(notification);
+        }
+      }, 3000);
+      
+      setShowPreview(false);
+      setIsEditing(true); // Set to editing mode after first save
+      
+      // Optional: Navigate to workspace to see the saved configuration
+      // navigate('/workspace');
+      
+    } catch (error) {
+      console.error('Error saving configuration:', error);
+      
+      // Show error notification
+      const notification = document.createElement('div');
+      notification.className = 'fixed top-4 right-4 bg-red-600 text-white px-6 py-3 rounded-lg shadow-lg z-50 flex items-center gap-2';
+      notification.innerHTML = `
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+        </svg>
+        Failed to save configuration. Please try again.
+      `;
+      document.body.appendChild(notification);
+      
+      setTimeout(() => {
+        if (notification.parentNode) {
+          notification.parentNode.removeChild(notification);
+        }
+      }, 3000);
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const handlePreview = () => {
@@ -1033,7 +1101,12 @@ export default function ClientWorkspaceConfig() {
           <div className="flex justify-between items-center">
             <button
               onClick={handlePreview}
-              className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-semibold flex items-center gap-2 transition-colors text-lg"
+              disabled={isSaving}
+              className={`px-6 py-3 rounded-lg font-semibold flex items-center gap-2 transition-colors text-lg ${
+                isSaving 
+                  ? 'bg-gray-600 cursor-not-allowed text-gray-300' 
+                  : 'bg-blue-600 hover:bg-blue-700 text-white'
+              }`}
             >
               <FaEye />
               Preview
@@ -1041,10 +1114,24 @@ export default function ClientWorkspaceConfig() {
             
             <button
               onClick={saveConfiguration}
-              className="bg-green-600 hover:bg-green-700 text-white px-8 py-3 rounded-lg font-semibold flex items-center gap-2 transition-colors text-lg"
+              disabled={isSaving}
+              className={`px-8 py-3 rounded-lg font-semibold flex items-center gap-2 transition-colors text-lg ${
+                isSaving 
+                  ? 'bg-gray-600 cursor-not-allowed text-gray-300' 
+                  : 'bg-green-600 hover:bg-green-700 text-white'
+              }`}
             >
-              <FaSave />
-              {isEditing ? 'Update Configuration' : 'Save Configuration'}
+              {isSaving ? (
+                <>
+                  <FaSpinner className="animate-spin w-5 h-5" />
+                  Saving...
+                </>
+              ) : (
+                <>
+                  <FaSave />
+                  {isEditing ? 'Update Configuration' : 'Save Configuration'}
+                </>
+              )}
             </button>
           </div>
         </div>
