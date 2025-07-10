@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Sidebar from "./Sidebar";
 import SlideMenu from "./SlideMenu";
 import {
@@ -19,13 +19,156 @@ import {
   FaHeadset,
   FaListUl,
   FaArrowUp,
-  FaArrowDown
+  FaArrowDown,
+  FaToggleOn,
+  FaToggleOff,
+  FaBuilding,
+  FaShoppingCart,
+  FaTools,
+  FaClipboardList,
+  FaPhone,
+  FaEnvelope,
+  FaWarehouse,
+  FaTruck,
+  FaChartLine,
+  FaUsers,
+  FaCreditCard,
+  FaCalendarAlt
 } from "react-icons/fa";
+
+// Preview Modal Component
+function PreviewModal({ isOpen, onClose, onConfirm, config, companyType }) {
+  if (!isOpen) return null;
+
+  const getEnabledSections = () => {
+    return config.dashboardSections.filter(section => section.enabled);
+  };
+
+  const primaryColorClass = `bg-${config.branding.primaryColor}-500`;
+
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+      <div className="bg-[#1e293b] rounded-lg w-full max-w-4xl max-h-[90vh] overflow-hidden">
+        <div className="flex justify-between items-center p-4 border-b border-gray-600">
+          <h2 className="text-xl font-semibold text-white">Preview Customer Dashboard</h2>
+          <button onClick={onClose} className="text-gray-400 hover:text-white">
+            <FaTimes />
+          </button>
+        </div>
+        
+        <div className="p-6 overflow-y-auto max-h-[70vh]">
+          {/* Preview Header */}
+          <div className="mb-6 p-4 bg-[#0f172a] rounded-lg border border-gray-600">
+            <div className="flex items-center gap-4 mb-4">
+              {config.branding.logo && (
+                <img src={config.branding.logo} alt="Logo" className="w-12 h-12 object-contain" />
+              )}
+              <div>
+                <h1 className={`text-2xl font-bold text-${config.branding.primaryColor}-400`}>
+                  {companyType === 'service' ? 'Service Portal' : 'Product Portal'}
+                </h1>
+                <p className="text-gray-300">{config.branding.welcomeMessage}</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Preview Dashboard Sections */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
+            {getEnabledSections().map((section) => (
+              <div key={section.id} className="bg-[#0f172a] p-4 rounded-lg border border-gray-600">
+                <div className="flex items-center gap-3 mb-2">
+                  <span className={`text-lg text-${config.branding.primaryColor}-400`}>{section.icon}</span>
+                  <h3 className="text-white font-medium">{section.name}</h3>
+                </div>
+                <p className="text-gray-400 text-sm">
+                  {section.name === 'Orders' && 'View and track your orders'}
+                  {section.name === 'Feedback' && 'Share your feedback with us'}
+                  {section.name === 'Help' && 'Get help and support'}
+                  {section.name === 'Chat' && 'Live chat with our team'}
+                  {section.name === 'Tickets' && 'Manage support tickets'}
+                  {section.name === 'FAQs' && 'Frequently asked questions'}
+                  {section.name === 'Service Requests' && 'Submit service requests'}
+                  {section.name === 'Appointments' && 'Schedule appointments'}
+                  {section.name === 'Billing' && 'View billing information'}
+                  {section.name === 'Inventory' && 'Check product availability'}
+                  {section.name === 'Shipping' && 'Track shipments'}
+                  {section.name === 'Returns' && 'Process returns'}
+                </p>
+              </div>
+            ))}
+          </div>
+
+          {/* Preview Form Fields */}
+          {config.formFields.length > 0 && (
+            <div className="bg-[#0f172a] p-4 rounded-lg border border-gray-600 mb-6">
+              <h3 className="text-white font-medium mb-3">Contact Form Preview</h3>
+              <div className="space-y-3">
+                {config.formFields.map((field) => (
+                  <div key={field.id}>
+                    <label className="block text-sm font-medium text-gray-300 mb-1">
+                      {field.label} {field.required && <span className="text-red-400">*</span>}
+                    </label>
+                    {field.type === 'textarea' ? (
+                      <textarea className="w-full p-2 bg-[#1e293b] border border-gray-600 rounded text-white" rows="2" disabled />
+                    ) : field.type === 'dropdown' ? (
+                      <select className="w-full p-2 bg-[#1e293b] border border-gray-600 rounded text-white" disabled>
+                        <option>Select {field.label}</option>
+                      </select>
+                    ) : (
+                      <input type={field.type} className="w-full p-2 bg-[#1e293b] border border-gray-600 rounded text-white" disabled />
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Preview FAQs */}
+          {config.faqs.length > 0 && (
+            <div className="bg-[#0f172a] p-4 rounded-lg border border-gray-600">
+              <h3 className="text-white font-medium mb-3">FAQ Preview</h3>
+              <div className="space-y-3">
+                {config.faqs.slice(0, 2).map((faq) => (
+                  <div key={faq.id}>
+                    <h4 className="text-white font-medium">{faq.question}</h4>
+                    <p className="text-gray-400 text-sm mt-1">{faq.answer}</p>
+                  </div>
+                ))}
+                {config.faqs.length > 2 && (
+                  <p className="text-gray-500 text-sm">... and {config.faqs.length - 2} more FAQs</p>
+                )}
+              </div>
+            </div>
+          )}
+        </div>
+
+        <div className="flex justify-end gap-3 p-4 border-t border-gray-600">
+          <button
+            onClick={onClose}
+            className="px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg transition-colors"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={onConfirm}
+            className="px-6 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg flex items-center gap-2 transition-colors"
+          >
+            <FaSave />
+            Confirm & Save
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 export default function ClientWorkspaceConfig() {
   const [isMenuOpen, setMenuOpen] = useState(false);
   const [isPermanent, setPermanent] = useState(false);
   const [isHoveringMenu, setIsHoveringMenu] = useState(false);
+  const [companyType, setCompanyType] = useState("service"); // service or product
+  const [showPreview, setShowPreview] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
 
   // Branding state
   const [branding, setBranding] = useState({
@@ -34,15 +177,28 @@ export default function ClientWorkspaceConfig() {
     welcomeMessage: "Welcome to your customer portal"
   });
 
-  // Dashboard sections state
-  const [dashboardSections, setDashboardSections] = useState([
-    { id: 1, name: "Orders", icon: <FaListUl />, enabled: true },
-    { id: 2, name: "Feedback", icon: <FaComments />, enabled: true },
-    { id: 3, name: "Help", icon: <FaQuestion />, enabled: true },
+  // Service-based dashboard sections
+  const serviceSections = [
+    { id: 1, name: "Service Requests", icon: <FaTools />, enabled: true },
+    { id: 2, name: "Appointments", icon: <FaCalendarAlt />, enabled: true },
+    { id: 3, name: "Billing", icon: <FaCreditCard />, enabled: true },
     { id: 4, name: "Chat", icon: <FaComments />, enabled: false },
     { id: 5, name: "Tickets", icon: <FaTicketAlt />, enabled: true },
     { id: 6, name: "FAQs", icon: <FaQuestion />, enabled: true }
-  ]);
+  ];
+
+  // Product-based dashboard sections
+  const productSections = [
+    { id: 1, name: "Orders", icon: <FaListUl />, enabled: true },
+    { id: 2, name: "Inventory", icon: <FaWarehouse />, enabled: true },
+    { id: 3, name: "Shipping", icon: <FaTruck />, enabled: true },
+    { id: 4, name: "Returns", icon: <FaArrowDown />, enabled: false },
+    { id: 5, name: "Support", icon: <FaHeadset />, enabled: true },
+    { id: 6, name: "FAQs", icon: <FaQuestion />, enabled: true }
+  ];
+
+  // Dashboard sections state (dynamically set based on company type)
+  const [dashboardSections, setDashboardSections] = useState(serviceSections);
 
   // Form fields state
   const [formFields, setFormFields] = useState([
@@ -58,6 +214,24 @@ export default function ClientWorkspaceConfig() {
   ]);
   const [newFaq, setNewFaq] = useState({ question: "", answer: "" });
   const [editingFaq, setEditingFaq] = useState(null);
+
+  // Load existing configuration on component mount
+  useEffect(() => {
+    const savedConfig = localStorage.getItem('clientWorkspaceConfig');
+    if (savedConfig) {
+      try {
+        const config = JSON.parse(savedConfig);
+        setIsEditing(true);
+        setCompanyType(config.companyType);
+        setBranding(config.branding);
+        setDashboardSections(config.dashboardSections);
+        setFormFields(config.formFields);
+        setFaqs(config.faqs);
+      } catch (error) {
+        console.error('Error loading saved configuration:', error);
+      }
+    }
+  }, []);
 
   // Available colors for primary color picker
   const colors = [
@@ -80,6 +254,21 @@ export default function ClientWorkspaceConfig() {
     { value: "email", label: "Email" },
     { value: "date", label: "Date" }
   ];
+
+  // Company type toggle handler
+  const toggleCompanyType = () => {
+    const newType = companyType === "service" ? "product" : "service";
+    setCompanyType(newType);
+    setDashboardSections(newType === "service" ? serviceSections : productSections);
+    
+    // Update welcome message based on type
+    setBranding(prev => ({
+      ...prev,
+      welcomeMessage: newType === "service" 
+        ? "Welcome to your service portal" 
+        : "Welcome to your product portal"
+    }));
+  };
 
   // Menu handlers
   const handleHamburgerHover = () => {
@@ -177,15 +366,34 @@ export default function ClientWorkspaceConfig() {
   };
 
   const saveConfiguration = () => {
-    // Mock save functionality - would typically send to backend
     const config = {
+      companyType,
       branding,
       dashboardSections,
       formFields,
-      faqs
+      faqs,
+      timestamp: new Date().toISOString()
     };
+    
+    // Save to localStorage (in a real app, this would be sent to backend)
+    localStorage.setItem('clientWorkspaceConfig', JSON.stringify(config));
+    
     console.log("Saving configuration:", config);
-    alert("Configuration saved successfully!");
+    alert(`Configuration ${isEditing ? 'updated' : 'saved'} successfully!`);
+    setShowPreview(false);
+    setIsEditing(true); // Set to editing mode after first save
+  };
+
+  const handlePreview = () => {
+    setShowPreview(true);
+  };
+
+  const config = {
+    companyType,
+    branding,
+    dashboardSections,
+    formFields,
+    faqs
   };
 
   return (
@@ -219,14 +427,61 @@ export default function ClientWorkspaceConfig() {
           isMenuOpen ? "ml-64" : "ml-20"
         } transition-all duration-300 ease-in-out`}
       >
-        {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-white mb-2">
-            Client Workspace Configuration
-          </h1>
-          <p className="text-gray-400">
-            Customize your client's customer dashboard experience
-          </p>
+        {/* Header with Toggle */}
+        <div className="flex justify-between items-start mb-8">
+          <div>
+            <h1 className="text-3xl font-bold text-white mb-2">
+              {isEditing ? 'Edit' : 'Create'} Client Workspace Configuration
+            </h1>
+            <p className="text-gray-400">
+              {isEditing ? 'Update your existing' : 'Customize your'} client's customer dashboard experience
+            </p>
+            {isEditing && (
+              <p className="text-blue-400 text-sm mt-1">
+                Editing existing configuration
+              </p>
+            )}
+          </div>
+          
+          <div className="flex items-center gap-4">
+            {/* Start Fresh Button for editing mode */}
+            {isEditing && (
+              <button
+                onClick={() => {
+                  if (confirm('Are you sure you want to start fresh? This will clear all current configuration.')) {
+                    localStorage.removeItem('clientWorkspaceConfig');
+                    window.location.reload(); // Reload to reset all states
+                  }
+                }}
+                className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors"
+              >
+                <FaPlus />
+                Start Fresh
+              </button>
+            )}
+            
+            {/* Company Type Toggle */}
+            <div className="flex items-center gap-3 bg-[#1e293b] rounded-lg p-3 border border-gray-700">
+              <div className="flex items-center gap-2">
+                <FaTools className="text-blue-400" />
+                <span className={`text-sm font-medium ${companyType === 'service' ? 'text-white' : 'text-gray-400'}`}>
+                  Service
+                </span>
+              </div>
+              <button
+                onClick={toggleCompanyType}
+                className="text-2xl text-blue-400 hover:text-blue-300 transition-colors"
+              >
+                {companyType === "service" ? <FaToggleOn /> : <FaToggleOff />}
+              </button>
+              <div className="flex items-center gap-2">
+                <span className={`text-sm font-medium ${companyType === 'product' ? 'text-white' : 'text-gray-400'}`}>
+                  Product
+                </span>
+                <FaShoppingCart className="text-green-400" />
+              </div>
+            </div>
+          </div>
         </div>
 
         <div className="space-y-8 max-w-6xl">
@@ -299,7 +554,7 @@ export default function ClientWorkspaceConfig() {
           <div className="bg-[#1e293b] rounded-lg p-6 border border-gray-700">
             <h2 className="text-xl font-semibold text-white mb-4 flex items-center gap-2">
               <FaCog className="text-green-400" />
-              Dashboard Layout Control
+              Dashboard Layout Control - {companyType === 'service' ? 'Service' : 'Product'} Based
             </h2>
             <div className="space-y-3">
               {dashboardSections.map((section, index) => (
@@ -506,18 +761,35 @@ export default function ClientWorkspaceConfig() {
             </div>
           </div>
 
-          {/* Save Configuration Button */}
-          <div className="flex justify-end">
+          {/* Action Buttons */}
+          <div className="flex justify-between items-center">
+            <button
+              onClick={handlePreview}
+              className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-semibold flex items-center gap-2 transition-colors text-lg"
+            >
+              <FaEye />
+              Preview
+            </button>
+            
             <button
               onClick={saveConfiguration}
               className="bg-green-600 hover:bg-green-700 text-white px-8 py-3 rounded-lg font-semibold flex items-center gap-2 transition-colors text-lg"
             >
               <FaSave />
-              Save Configuration
+              {isEditing ? 'Update Configuration' : 'Save Configuration'}
             </button>
           </div>
         </div>
       </main>
+
+      {/* Preview Modal */}
+      <PreviewModal
+        isOpen={showPreview}
+        onClose={() => setShowPreview(false)}
+        onConfirm={saveConfiguration}
+        config={config}
+        companyType={companyType}
+      />
     </div>
   );
 }
