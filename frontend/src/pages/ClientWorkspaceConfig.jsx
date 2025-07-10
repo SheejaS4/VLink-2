@@ -162,6 +162,226 @@ function PreviewModal({ isOpen, onClose, onConfirm, config, companyType }) {
   );
 }
 
+// Customize Modal Component
+function CustomizeModal({ isOpen, onClose, onSave, section, formData, setFormData }) {
+  if (!isOpen || !section) return null;
+
+  const addFormField = () => {
+    const newField = {
+      id: Date.now(),
+      label: '',
+      type: 'text',
+      required: false,
+      placeholder: '',
+      options: []
+    };
+    setFormData(prev => ({
+      ...prev,
+      fields: [...prev.fields, newField]
+    }));
+  };
+
+  const updateField = (fieldId, updates) => {
+    setFormData(prev => ({
+      ...prev,
+      fields: prev.fields.map(field => 
+        field.id === fieldId ? { ...field, ...updates } : field
+      )
+    }));
+  };
+
+  const removeField = (fieldId) => {
+    setFormData(prev => ({
+      ...prev,
+      fields: prev.fields.filter(field => field.id !== fieldId)
+    }));
+  };
+
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+      <div className="bg-[#1e293b] rounded-lg w-full max-w-4xl max-h-[90vh] overflow-hidden">
+        <div className="flex justify-between items-center p-6 border-b border-gray-600">
+          <div>
+            <h2 className="text-xl font-semibold text-white flex items-center gap-2">
+              {section.icon}
+              Customize {section.name} Form
+            </h2>
+            <p className="text-gray-400 text-sm mt-1">Design the form that customers will see for {section.name.toLowerCase()}</p>
+          </div>
+          <button onClick={onClose} className="text-gray-400 hover:text-white">
+            <FaTimes />
+          </button>
+        </div>
+        
+        <div className="p-6 overflow-y-auto max-h-[70vh]">
+          {/* Form Title and Description */}
+          <div className="mb-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-2">Form Title</label>
+                <input
+                  type="text"
+                  value={formData.title}
+                  onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
+                  className="w-full p-3 bg-[#0f172a] border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:ring-2 focus:ring-blue-500"
+                  placeholder="Enter form title..."
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-2">Description</label>
+                <input
+                  type="text"
+                  value={formData.description}
+                  onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
+                  className="w-full p-3 bg-[#0f172a] border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:ring-2 focus:ring-blue-500"
+                  placeholder="Enter form description..."
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Form Fields */}
+          <div className="mb-6">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-lg font-medium text-white">Form Fields</h3>
+              <button
+                onClick={addFormField}
+                className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors"
+              >
+                <FaPlus />
+                Add Field
+              </button>
+            </div>
+            
+            <div className="space-y-4">
+              {formData.fields.map((field) => (
+                <div key={field.id} className="bg-[#0f172a] p-4 rounded-lg border border-gray-600">
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-3">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-400 mb-1">Field Label</label>
+                      <input
+                        type="text"
+                        value={field.label}
+                        onChange={(e) => updateField(field.id, { label: e.target.value })}
+                        className="w-full p-2 bg-[#1e293b] border border-gray-600 rounded text-white placeholder-gray-400 focus:ring-2 focus:ring-blue-500"
+                        placeholder="Enter field label..."
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-400 mb-1">Field Type</label>
+                      <select
+                        value={field.type}
+                        onChange={(e) => updateField(field.id, { type: e.target.value })}
+                        className="w-full p-2 bg-[#1e293b] border border-gray-600 rounded text-white focus:ring-2 focus:ring-blue-500"
+                      >
+                        <option value="text">Text Input</option>
+                        <option value="textarea">Text Area</option>
+                        <option value="dropdown">Dropdown</option>
+                        <option value="checkbox">Checkbox</option>
+                        <option value="radio">Radio Button</option>
+                        <option value="number">Number</option>
+                        <option value="email">Email</option>
+                        <option value="date">Date</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-400 mb-1">Placeholder</label>
+                      <input
+                        type="text"
+                        value={field.placeholder}
+                        onChange={(e) => updateField(field.id, { placeholder: e.target.value })}
+                        className="w-full p-2 bg-[#1e293b] border border-gray-600 rounded text-white placeholder-gray-400 focus:ring-2 focus:ring-blue-500"
+                        placeholder="Enter placeholder text..."
+                      />
+                    </div>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <label className="flex items-center gap-2">
+                      <input
+                        type="checkbox"
+                        checked={field.required}
+                        onChange={(e) => updateField(field.id, { required: e.target.checked })}
+                        className="w-4 h-4 text-blue-600 bg-gray-700 border-gray-600 rounded focus:ring-blue-500"
+                      />
+                      <span className="text-gray-300 text-sm">Required field</span>
+                    </label>
+                    <button
+                      onClick={() => removeField(field.id)}
+                      className="text-red-400 hover:text-red-300 p-1"
+                    >
+                      <FaTrash />
+                    </button>
+                  </div>
+                </div>
+              ))}
+              
+              {formData.fields.length === 0 && (
+                <div className="text-center py-8 text-gray-400">
+                  No fields added yet. Click "Add Field" to get started.
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Form Preview */}
+          <div className="mb-6">
+            <h3 className="text-lg font-medium text-white mb-4">Form Preview</h3>
+            <div className="bg-[#0f172a] p-6 rounded-lg border border-gray-600">
+              <h4 className="text-white font-semibold mb-2">{formData.title || 'Form Title'}</h4>
+              <p className="text-gray-400 text-sm mb-4">{formData.description || 'Form description will appear here'}</p>
+              
+              <div className="space-y-4">
+                {formData.fields.map((field) => (
+                  <div key={field.id}>
+                    <label className="block text-sm font-medium text-gray-300 mb-1">
+                      {field.label || 'Field Label'} {field.required && <span className="text-red-400">*</span>}
+                    </label>
+                    {field.type === 'textarea' ? (
+                      <textarea 
+                        className="w-full p-2 bg-[#1e293b] border border-gray-600 rounded text-white"
+                        placeholder={field.placeholder}
+                        rows="3"
+                        disabled
+                      />
+                    ) : field.type === 'dropdown' ? (
+                      <select className="w-full p-2 bg-[#1e293b] border border-gray-600 rounded text-white" disabled>
+                        <option>{field.placeholder || 'Select an option'}</option>
+                      </select>
+                    ) : (
+                      <input 
+                        type={field.type}
+                        className="w-full p-2 bg-[#1e293b] border border-gray-600 rounded text-white"
+                        placeholder={field.placeholder}
+                        disabled
+                      />
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="flex justify-end gap-3 p-6 border-t border-gray-600">
+          <button
+            onClick={onClose}
+            className="px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg transition-colors"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={onSave}
+            className="px-6 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg flex items-center gap-2 transition-colors"
+          >
+            <FaSave />
+            Save Form
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function ClientWorkspaceConfig() {
   const [isMenuOpen, setMenuOpen] = useState(false);
   const [isPermanent, setPermanent] = useState(false);
@@ -214,6 +434,13 @@ export default function ClientWorkspaceConfig() {
   ]);
   const [newFaq, setNewFaq] = useState({ question: "", answer: "" });
   const [editingFaq, setEditingFaq] = useState(null);
+  const [customizeSection, setCustomizeSection] = useState(null);
+  const [customizeFormData, setCustomizeFormData] = useState({
+    title: '',
+    description: '',
+    fields: [],
+    settings: {}
+  });
 
   // Load existing configuration on component mount
   useEffect(() => {
@@ -365,6 +592,34 @@ export default function ClientWorkspaceConfig() {
     setFaqs(prev => prev.filter(faq => faq.id !== id));
   };
 
+  // Customize section handlers
+  const handleCustomizeSection = (section) => {
+    setCustomizeSection(section);
+    setCustomizeFormData({
+      title: `${section.name} Form`,
+      description: `Customize the ${section.name.toLowerCase()} form for your clients`,
+      fields: [],
+      settings: {}
+    });
+  };
+
+  const closeCustomizeModal = () => {
+    setCustomizeSection(null);
+    setCustomizeFormData({
+      title: '',
+      description: '',
+      fields: [],
+      settings: {}
+    });
+  };
+
+  const saveCustomizeForm = () => {
+    // Here you would save the customized form data
+    console.log('Saving customized form for:', customizeSection.name, customizeFormData);
+    alert(`${customizeSection.name} form customized successfully!`);
+    closeCustomizeModal();
+  };
+
   const saveConfiguration = () => {
     const config = {
       companyType,
@@ -461,24 +716,30 @@ export default function ClientWorkspaceConfig() {
             )}
             
             {/* Company Type Toggle */}
-            <div className="flex items-center gap-3 bg-[#1e293b] rounded-lg p-3 border border-gray-700">
-              <div className="flex items-center gap-2">
-                <FaTools className="text-blue-400" />
-                <span className={`text-sm font-medium ${companyType === 'service' ? 'text-white' : 'text-gray-400'}`}>
+            <div className="relative">
+              <div className="flex items-center bg-gray-700 rounded-full p-1 w-80 h-16">
+                <button
+                  onClick={toggleCompanyType}
+                  className={`flex-1 h-14 rounded-full flex items-center justify-center gap-2 font-semibold text-lg transition-all duration-300 ${
+                    companyType === 'service' 
+                      ? 'bg-green-500 text-black shadow-lg' 
+                      : 'text-gray-400 hover:text-white'
+                  }`}
+                >
+                  <FaTools className="text-xl" />
                   Service
-                </span>
-              </div>
-              <button
-                onClick={toggleCompanyType}
-                className="text-2xl text-blue-400 hover:text-blue-300 transition-colors"
-              >
-                {companyType === "service" ? <FaToggleOn /> : <FaToggleOff />}
-              </button>
-              <div className="flex items-center gap-2">
-                <span className={`text-sm font-medium ${companyType === 'product' ? 'text-white' : 'text-gray-400'}`}>
+                </button>
+                <button
+                  onClick={toggleCompanyType}
+                  className={`flex-1 h-14 rounded-full flex items-center justify-center gap-2 font-semibold text-lg transition-all duration-300 ${
+                    companyType === 'product' 
+                      ? 'bg-green-500 text-black shadow-lg' 
+                      : 'text-gray-400 hover:text-white'
+                  }`}
+                >
+                  <FaShoppingCart className="text-xl" />
                   Product
-                </span>
-                <FaShoppingCart className="text-green-400" />
+                </button>
               </div>
             </div>
           </div>
@@ -570,6 +831,13 @@ export default function ClientWorkspaceConfig() {
                     <span className="text-white font-medium">{section.name}</span>
                   </div>
                   <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => handleCustomizeSection(section)}
+                      className="bg-purple-600 hover:bg-purple-700 text-white px-3 py-1 rounded text-sm flex items-center gap-1 transition-colors"
+                    >
+                      <FaCog />
+                      Customize
+                    </button>
                     <button
                       onClick={() => moveSectionUp(section.id)}
                       disabled={index === 0}
@@ -789,6 +1057,16 @@ export default function ClientWorkspaceConfig() {
         onConfirm={saveConfiguration}
         config={config}
         companyType={companyType}
+      />
+
+      {/* Customize Modal */}
+      <CustomizeModal
+        isOpen={!!customizeSection}
+        onClose={closeCustomizeModal}
+        onSave={saveCustomizeForm}
+        section={customizeSection}
+        formData={customizeFormData}
+        setFormData={setCustomizeFormData}
       />
     </div>
   );

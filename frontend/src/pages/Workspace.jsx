@@ -249,17 +249,106 @@ export default function Workspace() {
               </div>
             )}
 
+            {/* Created Designs Gallery */}
+            <div className="bg-[#1e293b] rounded-lg p-6 border border-gray-700">
+              <div className="flex justify-between items-center mb-4">
+                <h2 className="text-xl font-semibold text-white">Created Designs</h2>
+                <button 
+                  onClick={handleEditConfiguration}
+                  className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors"
+                >
+                  <FaEdit />
+                  Create New Design
+                </button>
+              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {/* Main Configuration Design Card */}
+                <div className="bg-[#0f172a] rounded-lg p-4 border border-gray-600 hover:border-gray-500 transition-colors">
+                  <div className="flex items-center gap-3 mb-3">
+                    {savedConfig.branding.logo ? (
+                      <img src={savedConfig.branding.logo} alt="Logo" className="w-8 h-8 object-contain" />
+                    ) : (
+                      <div className="w-8 h-8 bg-gray-600 rounded flex items-center justify-center">
+                        <FaBuilding className="text-gray-400 text-sm" />
+                      </div>
+                    )}
+                    <div>
+                      <h3 className="text-white font-medium">Main Portal</h3>
+                      <p className="text-gray-400 text-xs">{savedConfig.companyType} based</p>
+                    </div>
+                  </div>
+                  <div className="text-gray-300 text-sm mb-3 line-clamp-2">
+                    {savedConfig.branding.welcomeMessage}
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className={`px-2 py-1 rounded text-xs bg-${savedConfig.branding.primaryColor}-500 bg-opacity-20 text-${savedConfig.branding.primaryColor}-400`}>
+                      {getEnabledSections().length} sections
+                    </span>
+                    <button 
+                      onClick={handleEditConfiguration}
+                      className="text-blue-400 hover:text-blue-300 text-sm"
+                    >
+                      Edit
+                    </button>
+                  </div>
+                </div>
+
+                {/* Individual Section Design Cards */}
+                {getEnabledSections().slice(0, 6).map((section) => (
+                  <div key={section.id} className="bg-[#0f172a] rounded-lg p-4 border border-gray-600 hover:border-gray-500 transition-colors">
+                    <div className="flex items-center gap-3 mb-3">
+                      <span className={`text-lg text-${savedConfig.branding.primaryColor}-400`}>{section.icon}</span>
+                      <div>
+                        <h3 className="text-white font-medium">{section.name}</h3>
+                        <p className="text-gray-400 text-xs">Form Design</p>
+                      </div>
+                    </div>
+                    <div className="text-gray-300 text-sm mb-3">
+                      Custom {section.name.toLowerCase()} form with dynamic fields and validation
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs text-gray-400">
+                        {section.name === 'Orders' && '6 fields'}
+                        {section.name === 'Feedback' && '4 fields'}
+                        {section.name === 'Help' && '5 fields'}
+                        {section.name === 'Chat' && '3 fields'}
+                        {section.name === 'Tickets' && '7 fields'}
+                        {section.name === 'FAQs' && '2 fields'}
+                        {section.name === 'Service Requests' && '8 fields'}
+                        {section.name === 'Appointments' && '6 fields'}
+                        {section.name === 'Billing' && '5 fields'}
+                        {section.name === 'Inventory' && '4 fields'}
+                        {section.name === 'Shipping' && '7 fields'}
+                        {section.name === 'Returns' && '6 fields'}
+                        {section.name === 'Support' && '5 fields'}
+                      </span>
+                      <button className="text-blue-400 hover:text-blue-300 text-sm">
+                        Customize
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
             {/* Customer Portal Preview */}
             <div className="bg-[#1e293b] rounded-lg p-6 border border-gray-700">
               <div className="flex justify-between items-center mb-4">
-                <h2 className="text-xl font-semibold text-white">Customer Portal Preview</h2>
-                <button className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors">
-                  <FaEye />
-                  View Live Portal
-                </button>
+                <h2 className="text-xl font-semibold text-white">Live Portal Preview</h2>
+                <div className="flex gap-3">
+                  <button className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors">
+                    <FaEye />
+                    Preview
+                  </button>
+                  <button className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors">
+                    <FaEye />
+                    Go Live
+                  </button>
+                </div>
               </div>
               <div className="bg-[#0f172a] rounded-lg p-6 border border-gray-600">
-                <div className="flex items-center gap-4 mb-4">
+                <div className="flex items-center gap-4 mb-6">
                   {savedConfig.branding.logo && (
                     <img src={savedConfig.branding.logo} alt="Logo" className="w-12 h-12 object-contain" />
                   )}
@@ -270,13 +359,18 @@ export default function Workspace() {
                     <p className="text-gray-300">{savedConfig.branding.welcomeMessage}</p>
                   </div>
                 </div>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                  {getEnabledSections().slice(0, 4).map((section) => (
-                    <div key={section.id} className="bg-[#1e293b] p-3 rounded border border-gray-600 text-center">
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
+                  {getEnabledSections().slice(0, 8).map((section) => (
+                    <div key={section.id} className="bg-[#1e293b] p-3 rounded border border-gray-600 text-center hover:border-gray-500 transition-colors cursor-pointer">
                       <span className={`text-2xl text-${savedConfig.branding.primaryColor}-400 block mb-1`}>{section.icon}</span>
                       <span className="text-white text-xs">{section.name}</span>
                     </div>
                   ))}
+                </div>
+                <div className="text-center">
+                  <p className="text-gray-400 text-sm">
+                    Interactive portal with {getEnabledSections().length} enabled sections
+                  </p>
                 </div>
               </div>
             </div>
