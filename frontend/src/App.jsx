@@ -12,6 +12,7 @@ import Settings from './pages/Settings';
 import Profile from './pages/Profile';
 import AuthCallback from './components/AuthCallback';
 import CustomerPortal from './pages/CustomerPortal';
+import ClientWorkspaceConfig from './pages/ClientWorkspaceConfig';
 
 function App() {
   return (
@@ -30,6 +31,7 @@ function App() {
         <Route path="/settings" element={<Settings />} />
         <Route path="/profile" element={<Profile />} />
         <Route path="/customer" element={<CustomerPortal />} />
+        <Route path="/client-config" element={<ClientWorkspaceConfig />} />
       </Routes>
     </div>
   );
